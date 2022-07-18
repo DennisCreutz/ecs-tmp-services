@@ -55,7 +55,7 @@ module "aurora_access" {
   project = "ets" // needs to be shorter...
 
   vpc_id             = data.terraform_remote_state.aurora.outputs.vpc_id
-  bastion_subnet_ids = data.terraform_remote_state.aurora.outputs.private_subnets.*.id
+  bastion_subnet_ids = data.terraform_remote_state.aurora.outputs.public_subnets.*.id
   lb_subnet_ids      = data.terraform_remote_state.aurora.outputs.public_subnets.*.id
 
   bastion_host_key_pair = aws_key_pair.this.key_name
