@@ -8,6 +8,16 @@ data "terraform_remote_state" "ecr" {
   }
 }
 
+data "terraform_remote_state" "config_service_lambda" {
+  backend = "s3"
+
+  config = {
+    bucket = "ecs-tmp-services-global-remote-backend"
+    region = "eu-central-1"
+    key    = "live/ecs-tmp-services/prod/backend/lambda/create-tmp-service/terraform.tfstate"
+  }
+}
+
 data "aws_ecr_image" "config_service" {
   repository_name = data.terraform_remote_state.ecr.outputs.config_service_repo_name
   image_tag       = "latest"
@@ -78,6 +88,10 @@ resource "aws_ecs_task_definition" "config_service" {
         {
           name  = "DB_PW",
           value = data.aws_ssm_parameter.db_pw.value
+        },
+        {
+          name  = "CONFIG_SERVICE_ARN",
+          value = data.terraform_remote_state.config_service_lambda.outputs.arn
         },
       ]
       logConfiguration : {

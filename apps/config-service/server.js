@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { insertTmpService } = require('./services/mysql-service');
+const { insertTmpService, invokeLambda } = require('./services/mysql-service');
 
 const app = express();
 const port = 3000;
@@ -22,10 +22,19 @@ app.post('/config', async (req, res) => {
   if (userId) {
     const serviceId = crypto.randomUUID();
     const currDateTime = parseJSDateToMySqlDate(new Date());
+    const lambdaARN = process.env.CONFIG_SERVICE_ARN;
 
     console.log(`Executing query for user ${userId}, service ${serviceId} and timestamp ${currDateTime}`);
     result = await insertTmpService(userId, serviceId, currDateTime);
     console.log(`Result: ${result}`);
+
+    console.log(`Invoking Lambda function ${lambdaARN}`);
+    const invokeResult = await invokeLambda(lambdaARN, {
+      userId,
+      serviceId,
+      currDateTime
+    });
+    console.log(`Invoke Lambda result: ${JSON.stringify(invokeResult)}`);
   } else {
     result = 'No userId';
   }
