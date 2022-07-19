@@ -17,6 +17,25 @@ data "aws_ecs_task_definition" "config_service" {
   task_definition = aws_ecs_task_definition.config_service.family
 }
 
+/*
+  TODO: Ugly! Must be created manually before apply
+*/
+data "aws_ssm_parameter" "db_host" {
+  name = "/${local.project}/${local.stage}/database/host"
+}
+data "aws_ssm_parameter" "db_port" {
+  name = "/${local.project}/${local.stage}/database/port"
+}
+data "aws_ssm_parameter" "db" {
+  name = "/${local.project}/${local.stage}/database/database"
+}
+data "aws_ssm_parameter" "db_user" {
+  name = "/${local.project}/${local.stage}/database/root-user-name"
+}
+data "aws_ssm_parameter" "db_pw" {
+  name = "/${local.project}/${local.stage}/database/root-user-pwd"
+}
+
 resource "aws_ecs_task_definition" "config_service" {
   family = "${local.prefix}-config-service"
 
@@ -39,6 +58,28 @@ resource "aws_ecs_task_definition" "config_service" {
           hostPort      = 3000
         }
       ]
+      environment = [
+        {
+          name  = "DB_HOST",
+          value = data.aws_ssm_parameter.db_host.value
+        },
+        {
+          name  = "DB_PORT",
+          value = data.aws_ssm_parameter.db_port.value
+        },
+        {
+          name  = "DB",
+          value = data.aws_ssm_parameter.db.value
+        },
+        {
+          name  = "DB_USER",
+          value = data.aws_ssm_parameter.db_user.value
+        },
+        {
+          name  = "DB_PW",
+          value = data.aws_ssm_parameter.db_pw.value
+        },
+      ]
       logConfiguration : {
         logDriver : "awslogs",
         options : {
@@ -60,7 +101,7 @@ resource "aws_ecs_service" "config_service" {
 
   desired_count                      = 1
   deployment_minimum_healthy_percent = 0
-  deployment_maximum_percent         = 100
+  deployment_maximum_percent         = 200
   launch_type                        = "EC2"
   scheduling_strategy                = "REPLICA"
   force_new_deployment               = true

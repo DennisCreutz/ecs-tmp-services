@@ -27,6 +27,16 @@ resource "aws_lb_target_group" "ecs_config_service" {
   port        = 3000
   protocol    = "HTTP"
   vpc_id      = module.vpc.vpc_id
+
+  deregistration_delay = "10"
+
+  health_check {
+    enabled             = true
+    interval            = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    timeout             = 4
+  }
 }
 
 resource "aws_security_group" "ecs_main_lb" {

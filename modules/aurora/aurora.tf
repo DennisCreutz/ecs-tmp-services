@@ -20,6 +20,7 @@ module "aurora_mysql" {
   create_security_group       = true
   security_group_egress_rules = var.security_group_egress_rules
   allowed_cidr_blocks         = length(var.allowed_cidr_blocks) == 0 ? [aws_vpc.database.cidr_block] : var.allowed_cidr_blocks
+  allowed_security_groups = var.allowed_security_groups
 
   apply_immediately   = var.apply_immediately
   skip_final_snapshot = var.skip_final_snapshot

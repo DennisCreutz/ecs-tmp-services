@@ -18,6 +18,16 @@ provider "aws" {
   region = "eu-central-1"
 }
 
+data "terraform_remote_state" "ecs" {
+  backend = "s3"
+
+  config = {
+    bucket = "ecs-tmp-services-global-remote-backend"
+    region = "eu-central-1"
+    key    = "live/ecs-tmp-services/prod/backend/ecs/terraform.tfstate"
+  }
+}
+
 resource "aws_iam_role" "additional_role" {
   name = "${local.prefix}-additional"
 
@@ -102,4 +112,6 @@ module "aurora" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
+
+  allowed_security_groups = [data.terraform_remote_state.ecs.outputs.config_service_security_group_id]
 }

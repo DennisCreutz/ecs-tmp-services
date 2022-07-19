@@ -152,6 +152,12 @@ variable "vpce_security_group_configuration" {
   default = null
 }
 
+variable "allowed_security_groups" {
+  description = "Description: A list of Security Group ID's to allow access to"
+  type = list(string)
+  default = []
+}
+
 variable "create_s3_gateway" {
   description = "Create a S3 Gateway for the private subnets to connect from VPC to S3."
   type        = bool

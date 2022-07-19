@@ -6,6 +6,10 @@ output "current_region_name" {
   value = data.aws_region.current.name
 }
 
+output "private_route_table_id" {
+  value = aws_route_table.private.id
+}
+
 output "database_vpc" {
   value = aws_vpc.database.id
 }

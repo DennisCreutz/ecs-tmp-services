@@ -1,12 +1,54 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const crypto = require('crypto');
+const { insertTmpService } = require('./services/mysql-service');
 
 const app = express();
 const port = 3000;
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+  res.send('Hello World!');
+});
+
+app.post('/config', async (req, res) => {
+  let result;
+
+  const body = req.body;
+  const userId = body.user;
+
+  if (userId) {
+    const serviceId = crypto.randomUUID();
+    const currDateTime = parseJSDateToMySqlDate(new Date());
+
+    console.log(`Executing query for user ${userId}, service ${serviceId} and timestamp ${currDateTime}`);
+    result = await insertTmpService(userId, serviceId, currDateTime);
+    console.log(`Result: ${result}`);
+  } else {
+    result = 'No userId';
+  }
+
+  res.send(JSON.stringify(result));
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});
+
+
+const parseJSDateToMySqlDate = (jsDate = null) => {
+  if (jsDate == null) {
+    return null;
+  }
+
+  let date;
+  if (typeof jsDate === 'string') {
+    date = new Date(jsDate);
+  } else {
+    date = jsDate;
+  }
+
+  return date.toISOString().slice(0, 19).replace('T', ' ');
+};
