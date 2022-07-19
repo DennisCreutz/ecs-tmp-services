@@ -18,8 +18,55 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-module "aurora_serverless" {
-  source = "../../../modules/aurora-serverless"
+resource "aws_iam_role" "additional_role" {
+  name = "${local.prefix}-additional"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "rds.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+// TODO cycle dep.
+resource "aws_iam_policy" "invoke_create_tmp_service" {
+  name        = "${local.prefix}-invoke-create-tmp-service"
+  path        = "/"
+  description = "IAM policy for invoking the create tmp service Lambda"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "invoke_create_tmp_service_lambda" {
+  role       = aws_iam_role.additional_role.name
+  policy_arn = aws_iam_policy.invoke_create_tmp_service.arn
+}
+
+module "aurora" {
+  source = "../../../modules/aurora"
 
   stage   = local.stage
   project = local.project
@@ -27,17 +74,20 @@ module "aurora_serverless" {
   vpc_name          = "vpc"
   vpc_cidr          = "192.168.0.0/20"
   create_vpce       = false
-  create_nat        = false
+  create_nat        = true
   create_s3_gateway = false
 
-  aurora_name = "aurora-serverless"
-  scaling_configuration = {
-    auto_pause               = true
-    min_capacity             = 1
-    max_capacity             = 4
-    seconds_until_auto_pause = 1200
-    timeout_action           = "ForceApplyCapacityChange"
+
+  instances = {
+    1 = {
+      instance_class      = "db.t4g.medium"
+      publicly_accessible = false
+    }
   }
+
+  aws_default_lambda_role = aws_iam_role.additional_role.arn
+
+  aurora_name                         = "aurora"
   preferred_backup_window             = "02:00-03:00"
   preferred_maintenance_window        = "sun:03:00-sun:04:00"
   public_subnet_cidrs                 = ["192.168.12.0/24", "192.168.13.0/24", "192.168.14.0/24"]
@@ -45,19 +95,10 @@ module "aurora_serverless" {
   backup_retention_period             = 1
   iam_database_authentication_enabled = false
 
-  // TODO
-  security_group_configuration = {
-    ingress = {
-      from_port        = 3306
-      to_port          = 3306
-      protocol         = "TCP"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = ["::/0"]
-    }
+  security_group_egress_rules = {
     egress = {
       from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
+      to_port     = 65535
       cidr_blocks = ["0.0.0.0/0"]
     }
   }

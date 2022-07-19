@@ -16,7 +16,7 @@ resource "aws_vpc_endpoint" "ssm_vpce" {
 }
 
 resource "aws_security_group" "ssm_vpce_sg" {
-  count = var.security_group_configuration != null ? 1 : 0
+  count = var.vpce_security_group_configuration != null ? 1 : 0
 
   name        = "${local.prefix}-ssm-vpce-sg-${count.index}"
   description = "SG for the ssm vpce sg."
@@ -27,25 +27,25 @@ resource "aws_security_group" "ssm_vpce_sg" {
 }
 
 resource "aws_security_group_rule" "ssm_vpce_sgr_ingress" {
-  count = var.security_group_configuration != null ? 1 : 0
+  count = var.vpce_security_group_configuration != null ? 1 : 0
 
   security_group_id = aws_security_group.ssm_vpce_sg[0].id
   type              = "ingress"
-  from_port         = var.security_group_configuration.ingress.from_port
-  to_port           = var.security_group_configuration.ingress.to_port
-  protocol          = var.security_group_configuration.ingress.protocol
-  cidr_blocks       = var.security_group_configuration.ingress.cidr_blocks
+  from_port         = var.vpce_security_group_configuration.ingress.from_port
+  to_port           = var.vpce_security_group_configuration.ingress.to_port
+  protocol          = var.vpce_security_group_configuration.ingress.protocol
+  cidr_blocks       = var.vpce_security_group_configuration.ingress.cidr_blocks
 }
 
 resource "aws_security_group_rule" "ssm_vpce_sgr_egress" {
-  count = var.security_group_configuration != null ? 1 : 0
+  count = var.vpce_security_group_configuration != null ? 1 : 0
 
   security_group_id = aws_security_group.ssm_vpce_sg[0].id
   type              = "egress"
-  from_port         = var.security_group_configuration.ingress.from_port
-  to_port           = var.security_group_configuration.ingress.to_port
-  protocol          = var.security_group_configuration.ingress.protocol
-  cidr_blocks       = var.security_group_configuration.ingress.cidr_blocks
+  from_port         = var.vpce_security_group_configuration.ingress.from_port
+  to_port           = var.vpce_security_group_configuration.ingress.to_port
+  protocol          = var.vpce_security_group_configuration.ingress.protocol
+  cidr_blocks       = var.vpce_security_group_configuration.ingress.cidr_blocks
 }
 
 resource "aws_vpc_endpoint" "s3" {

@@ -1,30 +1,31 @@
-module "aurora_mysql_serverless" {
+module "aurora_mysql" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "~> 5.0"
+  version = "~> 7.2"
 
-  name              = local.aurora_name
-  engine            = "aurora-mysql"
-  engine_mode       = "serverless"
-  engine_version    = var.database_engine_version
+  name           = local.aurora_name
+  engine         = "aurora-mysql"
+  engine_version = var.database_engine_version
+
+  instances = var.instances
+
   storage_encrypted = true
 
-  username               = var.username
+  master_username        = var.username
   create_random_password = var.password == ""
-  password               = var.password == "" ? null : var.password
+  master_password        = var.password == "" ? null : var.password
+  iam_roles              = var.iam_roles
 
-  vpc_id                = aws_vpc.database.id
-  subnets               = aws_subnet.private_subnets.*.id
-  create_security_group = true
-  allowed_cidr_blocks   = length(var.allowed_cidr_blocks) == 0 ? [aws_vpc.database.cidr_block] : var.allowed_cidr_blocks
-
-  replica_scale_enabled = false
-  replica_count         = 0
+  vpc_id                      = aws_vpc.database.id
+  subnets                     = aws_subnet.private_subnets.*.id
+  create_security_group       = true
+  security_group_egress_rules = var.security_group_egress_rules
+  allowed_cidr_blocks         = length(var.allowed_cidr_blocks) == 0 ? [aws_vpc.database.cidr_block] : var.allowed_cidr_blocks
 
   apply_immediately   = var.apply_immediately
   skip_final_snapshot = var.skip_final_snapshot
 
-  db_parameter_group_name         = aws_db_parameter_group.aurora_mysql_serverless.id
-  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_mysql_serverless.id
+  db_parameter_group_name         = aws_db_parameter_group.aurora_mysql.id
+  db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.aurora_mysql.id
 
   scaling_configuration = var.scaling_configuration
 
@@ -40,18 +41,18 @@ module "aurora_mysql_serverless" {
   depends_on = [aws_cloudwatch_log_group.audit, aws_cloudwatch_log_group.error, aws_cloudwatch_log_group.general, aws_cloudwatch_log_group.slow]
 }
 
-resource "aws_db_parameter_group" "aurora_mysql_serverless" {
+resource "aws_db_parameter_group" "aurora_mysql" {
   name        = "${local.aurora_name}-db-pg"
   family      = "aurora-mysql5.7"
-  description = "Database parameter group for the ${var.aurora_name} Aurora Serverless. Project: ${var.project} Stage: ${var.stage}"
+  description = "Database parameter group for the ${var.aurora_name} Aurora. Project: ${var.project} Stage: ${var.stage}"
   tags        = local.default_tags
 }
 
 
-resource "aws_rds_cluster_parameter_group" "aurora_mysql_serverless" {
+resource "aws_rds_cluster_parameter_group" "aurora_mysql" {
   name        = "${local.aurora_name}-cluster-pg"
   family      = "aurora-mysql5.7"
-  description = "Cluster parameter group for the ${var.aurora_name} Aurora Serverless. Project: ${var.project} Stage: ${var.stage}"
+  description = "Cluster parameter group for the ${var.aurora_name} Aurora. Project: ${var.project} Stage: ${var.stage}"
 
   dynamic "parameter" {
     for_each = var.advanced_log_configuration.enable_general_log ? [1] : []
@@ -86,6 +87,15 @@ resource "aws_rds_cluster_parameter_group" "aurora_mysql_serverless" {
     content {
       name  = "server_audit_events"
       value = var.advanced_log_configuration.audit_log_events
+    }
+  }
+
+  dynamic "parameter" {
+    for_each = var.aws_default_lambda_role != null ? [1] : []
+
+    content {
+      name  = "aws_default_lambda_role"
+      value = var.aws_default_lambda_role
     }
   }
 

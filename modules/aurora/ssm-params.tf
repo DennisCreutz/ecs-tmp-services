@@ -42,7 +42,7 @@ resource "aws_ssm_parameter" "ssm_root_user_name" {
   name        = local.ssm_path_root_user_name
   description = "Root auth username for Aurora mysql project ${var.project} stage ${var.stage} and tf workspace ${terraform.workspace}"
   type        = "SecureString"
-  value       = module.aurora_mysql_serverless.rds_cluster_master_username
+  value       = module.aurora_mysql.cluster_master_username
   overwrite   = true
 
   tags = local.default_tags
@@ -52,7 +52,7 @@ resource "aws_ssm_parameter" "ssm_root_user_pw" {
   name        = local.ssm_path_root_user_pw
   description = "Root auth password for Aurora mysql project ${var.project} stage ${var.stage} and tf workspace ${terraform.workspace}"
   type        = "SecureString"
-  value       = module.aurora_mysql_serverless.rds_cluster_master_password
+  value       = module.aurora_mysql.cluster_master_password
   overwrite   = true
 
   tags = local.default_tags

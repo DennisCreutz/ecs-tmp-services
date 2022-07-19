@@ -1,5 +1,5 @@
 output "cluster_id" {
-  value = module.aurora_mysql_serverless.rds_cluster_id
+  value = module.aurora_mysql.cluster_id
 }
 
 output "current_region_name" {
@@ -24,24 +24,24 @@ output "database_private_subnets" {
 }
 
 output "cluster_arn" {
-  value = module.aurora_mysql_serverless.rds_cluster_arn
+  value = module.aurora_mysql.cluster_arn
 }
 
 output "cluster_endpoint" {
-  value = module.aurora_mysql_serverless.rds_cluster_endpoint
+  value = module.aurora_mysql.cluster_endpoint
 }
 
 output "default_db_name" {
-  value = module.aurora_mysql_serverless.rds_cluster_database_name
+  value = module.aurora_mysql.cluster_database_name
 }
 
 output "cluster_username" {
-  value     = module.aurora_mysql_serverless.rds_cluster_master_username
+  value     = module.aurora_mysql.cluster_master_username
   sensitive = true
 }
 
 output "cluster_password" {
-  value     = module.aurora_mysql_serverless.rds_cluster_master_password
+  value     = module.aurora_mysql.cluster_master_password
   sensitive = true
 }
 

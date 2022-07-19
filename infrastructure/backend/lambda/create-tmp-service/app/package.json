@@ -1,0 +1,17 @@
+{
+  "name": "create-tmp-service",
+  "version": "1.0.0",
+  "description": "Lambda to create tmp ECS services",
+  "main": "create-tmp-service.js",
+  "license": "ISC",
+  "scripts": {
+    "compile": "rm -rf ./built && npm i && tsc && cp package*.json built && cd built && npm ci --production"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.98",
+    "@types/node": "^17.0.39",
+    "typescript": "~4.7.3"
+  }
+}

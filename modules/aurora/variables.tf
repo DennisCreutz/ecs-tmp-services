@@ -36,6 +36,7 @@ Example:
 variable "scaling_configuration" {
   description = "Map of nested attributes with scaling properties."
   type        = map(string)
+  default     = {}
 }
 
 variable "preferred_backup_window" {
@@ -46,6 +47,12 @@ variable "preferred_backup_window" {
 variable "preferred_maintenance_window" {
   description = "When to perform DB maintenance. Example: sun:05:00-sun:06:00"
   type        = string
+}
+
+variable "instances" {
+  description = "Map of cluster instances and any specific/overriding attributes to be created"
+  type        = any
+  default     = {}
 }
 
 variable "public_subnet_cidrs" {
@@ -81,7 +88,7 @@ variable "skip_final_snapshot" {
 variable "database_engine_version" {
   description = "Engine version of the database."
   type        = string
-  default     = "5.6.10a"
+  default     = "5.7"
 }
 
 variable "backup_retention_period" {
@@ -120,7 +127,13 @@ variable "create_vpce" {
   default     = true
 }
 
-variable "security_group_configuration" {
+variable "security_group_egress_rules" {
+  description = "A map of security group egress rule definitions to add to the security group created"
+  type        = map(any)
+  default     = {}
+}
+
+variable "vpce_security_group_configuration" {
   description = "Security group configuration for the SSM VPC Endpoint function."
   type = object({
     ingress = object({
@@ -182,6 +195,18 @@ variable "advanced_log_configuration" {
     audit_log_retention      = null
     audit_log_events         = null
   }
+}
+
+variable "iam_roles" {
+  description = "List of IAM role ARNs to attache to the cluster."
+  type        = map(map(string))
+  default     = {}
+}
+
+variable "aws_default_lambda_role" {
+  description = "Default Lambda role ARN to invoke Lambda functions.."
+  type        = string
+  default     = null
 }
 
 data "aws_region" "current" {}
