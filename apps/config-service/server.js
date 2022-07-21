@@ -20,7 +20,7 @@ app.post('/config', async (req, res) => {
   const userId = body.user;
 
   if (userId) {
-    const serviceId = crypto.randomUUID();
+    const serviceId = crypto.randomUUID().replaceAll('-', '');
     const currDateTime = parseJSDateToMySqlDate(new Date());
     const lambdaARN = process.env.CONFIG_SERVICE_ARN;
 
