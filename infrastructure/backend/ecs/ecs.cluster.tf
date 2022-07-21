@@ -29,6 +29,18 @@ resource "aws_ecs_cluster" "main" {
 
   depends_on = [aws_cloudwatch_log_group.config_service]
 }
+resource "aws_ecs_account_setting_default" "container_insights" {
+  name  = "containerInsights"
+  value = "enabled"
+
+  depends_on = [aws_ecs_cluster.main]
+}
+resource "aws_ecs_account_setting_default" "awsvpc_trunking" {
+  name  = "awsvpcTrunking"
+  value = "enabled"
+
+  depends_on = [aws_ecs_cluster.main]
+}
 
 resource "aws_iam_role" "ecs_worker" {
   name               = "${local.prefix}-ecs-worker"
