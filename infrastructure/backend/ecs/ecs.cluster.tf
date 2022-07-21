@@ -83,11 +83,12 @@ resource "aws_security_group" "ecs_worker" {
   }
 }
 
+// Ref.: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/container-instance-eni.html#eni-trunking-supported-instance-types
 resource "aws_launch_configuration" "ecs_worker" {
   image_id             = data.aws_ami.aws_optimized_ecs.id
   iam_instance_profile = aws_iam_instance_profile.ecs_worker.name
   security_groups      = [aws_security_group.ecs_worker.id]
-  instance_type        = "t3.medium"
+  instance_type        = "m5.large"
   user_data            = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.main.name} > /etc/ecs/ecs.config"
 
   lifecycle {
