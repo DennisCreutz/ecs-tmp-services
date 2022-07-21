@@ -60,4 +60,21 @@ module "create_tmp_service" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   }
+
+  additional_lambda_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ssm:GetParametersByPath",
+        "ssm:GetParameters",
+        "ssm:GetParameter"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
 }
