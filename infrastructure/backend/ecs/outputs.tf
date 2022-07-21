@@ -25,3 +25,15 @@ output "private_route_table_ids" {
 output "config_service_security_group_id" {
   value = aws_security_group.config_service.id
 }
+
+output "alb_listener_arn" {
+  value = aws_lb_listener.ecs_main_http.arn
+}
+
+output "ecs_cluster_id" {
+  value = aws_ecs_cluster.main.id
+}
+
+output "alb_sg_id" {
+  value = aws_security_group.ecs_main_lb.id
+}

@@ -30,3 +30,12 @@ module "ecr_config_service" {
 
   image_tag_mutability = "MUTABLE"
 }
+
+module "ecr_tmp_service" {
+  source  = "cloudposse/ecr/aws"
+  version = "~> 0.34"
+
+  name = "tmp-service"
+
+  image_tag_mutability = "MUTABLE"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "tmp-service",
+  "version": "1.0.0",
+  "description": "Node.js tmp service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "./build-image.sh"
+  },
+  "dependencies": {
+    "aws-sdk": "~>2.1046",
+    "express": "~>4.18.1"
+  }
+}
