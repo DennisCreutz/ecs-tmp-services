@@ -57,6 +57,14 @@ resource "aws_ecs_task_definition" "config_service" {
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn      = aws_iam_role.ecs_task_role.arn
 
+  volume {
+    name = local.config_service_efs_name
+    efs_volume_configuration {
+      transit_encryption = "ENABLED"
+      file_system_id     = aws_efs_file_system.libs.id
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = local.config_service_container_name
@@ -93,6 +101,17 @@ resource "aws_ecs_task_definition" "config_service" {
           name  = "CONFIG_SERVICE_ARN",
           value = data.terraform_remote_state.config_service_lambda.outputs.arn
         },
+        {
+          name  = "LIB_FOLDER",
+          value = local.efs_mount_path
+        },
+      ]
+      mountPoints : [
+        {
+          "containerPath" : local.efs_mount_path,
+          "sourceVolume" : local.config_service_efs_name
+          "readOnly" = false
+        }
       ]
       logConfiguration : {
         logDriver : "awslogs",

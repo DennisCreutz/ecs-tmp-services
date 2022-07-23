@@ -75,6 +75,13 @@ resource "aws_security_group" "ecs_worker" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 65535
@@ -89,7 +96,11 @@ resource "aws_launch_configuration" "ecs_worker" {
   iam_instance_profile = aws_iam_instance_profile.ecs_worker.name
   security_groups      = [aws_security_group.ecs_worker.id]
   instance_type        = "m5.large"
-  user_data            = "#!/bin/bash\necho ECS_CLUSTER=${aws_ecs_cluster.main.name} > /etc/ecs/ecs.config"
+
+  user_data = <<EOF
+#!/bin/bash
+echo ECS_CLUSTER=${aws_ecs_cluster.main.name} > /etc/ecs/ecs.config
+  EOF
 
   lifecycle {
     create_before_destroy = true
