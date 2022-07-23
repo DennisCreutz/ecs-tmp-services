@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const { insertTmpService, invokeLambda } = require('./services/mysql-service');
+const { startLibWriter, stopLibWriter, printIntervals, getLibContent } = require('./services/file-service');
 
 const app = express();
 const port = 3000;
@@ -35,11 +36,29 @@ app.post('/config', async (req, res) => {
       currDateTime
     });
     console.log(`Invoke Lambda result: ${JSON.stringify(invokeResult)}`);
+
+    console.log('Starting Lib. writer...');
+    const intervalId = startLibWriter(serviceId);
+    console.log(`Started Lib. writer with interval ID: ${intervalId}`);
   } else {
     result = 'No userId';
   }
 
   res.send(JSON.stringify(result));
+});
+
+app.get('/config/:serviceId', async (req, res) => {
+  const serviceId = req.params.serviceId;
+  console.log(`Getting Lib. content for serviceId ${serviceId}...`);
+  const libContent = getLibContent(serviceId);
+  res.send(JSON.stringify(libContent));
+});
+
+app.delete('/config/:serviceId', async (req, res) => {
+  const serviceId = req.params.serviceId;
+  console.log(`Stopping Lib. writer with serviceId ${serviceId}...`);
+  stopLibWriter(serviceId);
+  res.send('Done');
 });
 
 app.listen(port, () => {
