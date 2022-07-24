@@ -146,8 +146,11 @@ resource "aws_ecs_service" "config_service" {
   }
 
   network_configuration {
-    subnets         = module.vpc.private_subnets
-    security_groups = [aws_security_group.config_service.id]
+    subnets = module.vpc.private_subnets
+    security_groups = [
+      aws_security_group.config_service.id,
+      aws_security_group.efs_access.id
+    ]
   }
 
   lifecycle {

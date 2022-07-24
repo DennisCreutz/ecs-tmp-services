@@ -19,7 +19,7 @@ resource "aws_security_group" "libs" {
     protocol        = "tcp"
     from_port       = 2049
     to_port         = 2049
-    security_groups = [aws_security_group.config_service.id]
+    security_groups = [aws_security_group.efs_access.id]
   }
 
   egress {
@@ -29,4 +29,10 @@ resource "aws_security_group" "libs" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
+}
+
+resource "aws_security_group" "efs_access" {
+  name        = "${local.prefix}-efs-access"
+  description = "SG to attache to ressource who want to access EFS."
+  vpc_id      = module.vpc.vpc_id
 }

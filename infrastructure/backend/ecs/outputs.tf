@@ -37,3 +37,11 @@ output "ecs_cluster_id" {
 output "alb_sg_id" {
   value = aws_security_group.ecs_main_lb.id
 }
+
+output "efs_id" {
+  value = aws_efs_file_system.libs.id
+}
+
+output "efs_sg_access_id" {
+  value = aws_security_group.efs_access.id
+}
