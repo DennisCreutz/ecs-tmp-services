@@ -18,6 +18,7 @@ provider "aws" {
   region = "eu-central-1"
 }
 
+// TODO: cycle dep.
 data "terraform_remote_state" "ecs" {
   backend = "s3"
 
@@ -75,6 +76,7 @@ resource "aws_iam_role_policy_attachment" "invoke_create_tmp_service_lambda" {
   policy_arn = aws_iam_policy.invoke_create_tmp_service.arn
 }
 
+// TODO add role to cluster
 module "aurora" {
   source = "../../../modules/aurora"
 
