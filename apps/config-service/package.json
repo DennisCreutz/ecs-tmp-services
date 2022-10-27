@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "aws-sdk": "~>2.1046",
-    "body-parser": "^1.20.0",
+    "body-parser": "^1.20.1",
     "express": "~>4.18.1",
     "mysql": "~>2.18.1"
   }
