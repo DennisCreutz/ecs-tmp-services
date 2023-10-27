@@ -8,7 +8,7 @@
     "compile": "rm -rf ./built && npm i && tsc && cp package*.json built && cd built && npm ci --production"
   },
   "dependencies": {
-    "axios": "^0.27.2"
+    "axios": "^1.6.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.98",
